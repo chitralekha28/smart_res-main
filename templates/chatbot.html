@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restaurant Smart Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: url('https://static.vecteezy.com/system/resources/previews/022/576/369/non_2x/image-of-wooden-table-in-front-of-abstract-blurred-background-of-resturant-lights-wood-table-top-on-blur-of-lighting-in-night-cafe-restaurant-background-selective-focus-generative-ai-photo.jpg') no-repeat center center/cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+    .chat-container {
+      background: rgba(255, 255, 255, 0.95);
+      width: 400px;
+      max-width: 90%;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-header {
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.7rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .chat-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: #fff8f0;
+    }
+    .chat-message {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .user {
+      align-self: flex-end;
+      background: #ffeaa7;
+      color: #2d3436;
+      padding: 10px 15px;
+      border-radius: 20px;
+      max-width: 80%;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .bot {
+      align-self: flex-start;
+      background: #a29bfe;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 20px;
+      max-width: 80%;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .chat-footer {
+      display: flex;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+      background: white;
+    }
+    .chat-footer input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      border-radius: 20px;
+      background: #f1f1f1;
+      outline: none;
+      font-size: 1rem;
+    }
+    .chat-footer button {
+      background: linear-gradient(45deg, #ff6b6b, #ff4757);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .chat-footer button:hover {
+      background: linear-gradient(45deg, #ff4757, #ff6b6b);
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">
+    🍕 Foodie's ChatBot
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div class="chat-message bot">Hi foodie! 👋 How can I help you today?</div>
+  </div>
+  <div class="chat-footer">
+    <input type="text" id="user-input" placeholder="Type your question...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+const responses = {
+  "menu": "Our menu includes Pizza 🍕, Pasta 🍝, Burgers 🍔, Salads 🥗, Desserts 🍰, and Drinks 🍹!",
+  "open": "We're open from 9 AM to 11 PM every day! 🕘🕚",
+  "location": "We're located at 456 Delicious Avenue, Food City. 📍",
+  "reservation": "Call +123456789 or book online via our website! 📲",
+  "price": "Our dishes range from $8 to $30. 💵",
+  "vegan": "Absolutely! We offer vegan pizzas, vegan bowls, and smoothies. 🌱",
+  "payment": "We accept cash, all cards, Apple Pay, Google Pay, and PayPal. 💳",
+  "wifi": "Yes, free Wi-Fi available! Password: Foodie123 📶",
+  "specials": "Today's specials: Spicy Tacos 🌮 and Triple Chocolate Brownie 🍫!",
+  "birthday": "Celebrate with us! Free dessert on your birthday 🎂🎉.",
+  "parking": "We have free valet parking for all customers 🚗🅿️.",
+  "order": "Order online through our app or website! 🚚🍔",
+  "thank": "You're welcome! Happy to serve you! 😊",
+  "hello": "Hello there! 👋 Welcome to Foodie's Hub!",
+  "hi": "Hi! 👋 Ask me anything about our restaurant!",
+  "kids": "Yes! We have a kids-friendly menu 🍟 and play area 🛝!",
+  "gluten": "Yes! We offer gluten-free options like Gluten-Free Pasta and Pizza 🍝🍕.",
+  "delivery": "Yes, we deliver within 10 km radius 🚚. Free delivery over $50!",
+  "breakfast": "We serve breakfast from 9 AM to 11:30 AM ☕🥐.",
+  "events": "We host private parties and events. Contact us for details! 🎉🎈",
+  "alcohol": "Yes, we serve beer 🍺, wine 🍷, and cocktails 🍸!",
+  "buffet": "Buffet available on weekends from 12 PM to 4 PM! 🍽️",
+};
+
+function sendMessage() {
+  const inputField = document.getElementById("user-input");
+  const userText = inputField.value.trim();
+  if (userText === "") return;
+
+  addMessage(userText, "user");
+  inputField.value = "";
+
+  setTimeout(() => {
+    const botReply = getBotReply(userText);
+    addMessage(botReply, "bot");
+  }, 600);
+}
+
+function addMessage(message, sender) {
+  const chatBody = document.getElementById("chat-body");
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `chat-message ${sender}`;
+  messageDiv.textContent = message;
+  chatBody.appendChild(messageDiv);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function getBotReply(userInput) {
+  const input = userInput.toLowerCase();
+  for (const key in responses) {
+    if (input.includes(key)) {
+      return responses[key];
+    }
+  }
+  return "I'm sorry, I didn't catch that. 🤔 Try asking about our menu, specials, location, or parking!";
+}
+</script>
+
+</body>
+</html>

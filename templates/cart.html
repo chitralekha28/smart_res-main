@@ -1,0 +1,347 @@
+<!-- <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart - Smart Restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #dff9fb; margin: 0; }
+        nav { background: #2c3e50; padding: 15px; text-align: center; }
+        nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
+        .cart-container { padding: 20px; }
+        .cart-item { background: white; padding: 10px; margin: 10px 0; border-radius: 10px; box-shadow: 0px 5px 10px rgba(0,0,0,0.1); }
+        button { background: #ff5e62; color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/home">Home</a>
+    <a href="/menu">Menu</a>
+    <a href="/cart">Cart</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/logout">Logout</a>
+</nav>
+
+<div class="cart-container">
+    <h2>Cart Items</h2>
+    <div id="cartItems"></div>
+    <h3 id="total"></h3>
+    <button onclick="placeOrder()">Place Order (Cash on Delivery)</button>
+</div>
+
+<script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartDiv = document.getElementById('cartItems');
+    let total = 0;
+
+    cart.forEach(item => {
+        cartDiv.innerHTML += `<div class="cart-item">${item.name} - ₹${item.price}</div>`;
+        total += item.price;
+    });
+
+    document.getElementById('total').innerText = "Total: ₹" + total;
+
+    function placeOrder() {
+        fetch('/place_order', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({items: cart, total: total})
+        }).then(response => response.json())
+          .then(data => {
+              alert(data.message);
+              localStorage.removeItem('cart');
+              location.reload();
+          });
+    }
+</script>
+
+</body>
+</html> 
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu - Smart Restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #ffeaa7;
+            margin: 0;
+            padding: 0;
+        }
+        nav {
+            background: #2c3e50;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .form-container {
+            text-align: center;
+            margin: 20px;
+        }
+        .form-container input {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .menu-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .menu-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .menu-item h3 {
+            margin: 10px 0 5px;
+        }
+        .menu-item p {
+            margin: 5px 0;
+        }
+        .menu-item button {
+            background: #ff5e62;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/home">Home</a>
+    <a href="/menu">Menu</a>
+    <a href="/owner.html">Owner Page</a>
+</nav>
+
+<div class="form-container">
+    <input type="text" id="customerName" placeholder="Enter your name">
+    <input type="text" id="tableNumber" placeholder="Enter table number">
+</div>
+
+<div class="menu-container">
+    <div class="menu-item">
+        <img src="https://source.unsplash.com/250x200/?food,pizza" alt="Pizza">
+        <h3>Pizza</h3>
+        <p>Price: ₹200</p>
+        <button onclick="addToCart('Pizza', 200)">Add to Cart</button>
+    </div>
+    <div class="menu-item">
+        <img src="https://source.unsplash.com/250x200/?food,burger" alt="Burger">
+        <h3>Burger</h3>
+        <p>Price: ₹120</p>
+        <button onclick="addToCart('Burger', 120)">Add to Cart</button>
+    </div>
+    <div class="menu-item">
+        <img src="https://source.unsplash.com/250x200/?food,pasta" alt="Pasta">
+        <h3>Pasta</h3>
+        <p>Price: ₹180</p>
+        <button onclick="addToCart('Pasta', 180)">Add to Cart</button>
+    </div>
+</div>
+
+<script>
+    function addToCart(item, price) {
+        const name = document.getElementById("customerName").value.trim();
+        const table = document.getElementById("tableNumber").value.trim();
+
+        if (!name || !table) {
+            alert("Please enter your name and table number first.");
+            return;
+        }
+
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+        orders.push({ name, table, item, price });
+        localStorage.setItem("orders", JSON.stringify(orders));
+
+        alert(`${item} added to cart for ${name} (Table ${table})`);
+    }
+</script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+
+    .cart-page {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-name {
+      font-weight: 600;
+    }
+
+    .total-section {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .back-button, #placeOrderBtn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #ff7043;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .back-button {
+      background: #aaa;
+      margin-right: 10px;
+    }
+
+    .back-button:hover {
+      background: #888;
+    }
+
+    #placeOrderBtn:hover {
+      background: #d84315;
+    }
+  </style>
+</head>
+<body>
+  <div class="cart-page">
+    <h1>🛒 Your Cart</h1>
+    <div id="cart-items-container"></div>
+    <div class="total-section" id="cart-total"></div>
+    <a href="/menu" class="back-button">← Back to Menu</a>
+    <button id="placeOrderBtn">🛎️ Place Order</button>
+  </div>
+
+  <script>
+    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    const container = document.getElementById('cart-items-container');
+    const totalElem = document.getElementById('cart-total');
+
+    if (cartItems.length === 0) {
+      container.innerHTML = '<p>Your cart is empty.</p>';
+      totalElem.textContent = '';
+    } else {
+      let total = 0;
+
+      cartItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <span class="item-name">${item.name}</span>
+          <span class="item-price">₹${item.price} × ${item.quantity || 1}</span>
+        `;
+        container.appendChild(div);
+
+        const price = parseFloat(item.price.toString().replace(/[^\d.]/g, ""));
+        const qty = item.quantity || 1;
+        if (!isNaN(price)) total += price * qty;
+      });
+
+      totalElem.textContent = `Total: ₹${total.toFixed(2)}`;
+    }
+
+    document.getElementById("placeOrderBtn").addEventListener("click", async function () {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+
+      const name = prompt("Enter your name (or leave blank):") || "Guest";
+      const table = prompt("Enter table number:") || "Unknown";
+
+      // ✅ Make sure all items include both item_id and quantity
+      const items = cart
+        .filter(item => item.id !== undefined)
+        .map(item => ({
+          item_id: item.id,
+          quantity: item.quantity || 1
+        }));
+
+      console.log("Sending cart:", items);
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/place_order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+  name: name,
+  table_number: table,    // ✅ This matches what the backend expects
+  items: items
+})
+
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert("Order placed successfully!");
+          localStorage.removeItem("cart");
+          window.location.href = "/menu";
+        } else {
+          alert("Failed to place order: " + (data.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong while placing the order.");
+      }
+    });
+  </script>
+</body>
+</html>

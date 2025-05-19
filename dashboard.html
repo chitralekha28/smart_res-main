@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Smart Restaurant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #ecf0f1;
+    }
+
+    nav {
+      background: linear-gradient(to right, #2c3e50, #34495e);
+      padding: 20px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    nav div:first-child {
+      color: #ffa751;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    nav a {
+      color: #ffffff;
+      margin-left: 25px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 17px;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #ffa751;
+    }
+
+    .container {
+      padding: 40px 60px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 32px;
+      margin-bottom: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    thead th {
+      background: linear-gradient(to right, #ff9966, #ff5e62);
+      color: white;
+      padding: 18px;
+      font-size: 18px;
+    }
+
+    tbody td {
+      padding: 15px;
+      text-align: center;
+      font-size: 16px;
+      color: #2d3436;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 25px;
+      background: #27ae60;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #219150;
+    }
+
+    #no-orders {
+      font-size: 18px;
+      color: #555;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div>SmartRes Admin</div>
+  <div>
+    <a href="/menu">Menu</a>
+    <a href="/dashboard">Dashboard</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Order Dashboard</h1>
+
+  <table id="orders-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Table</th>
+        <th>Item</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody id="order-body"></tbody>
+  </table>
+
+  <p id="no-orders">No orders found.</p>
+</div>
+
+<script>
+  const tbody = document.getElementById("order-body");
+  const noOrders = document.getElementById("no-orders");
+  const table = document.getElementById("orders-table");
+
+  // Fetch data from the backend
+  fetch("/get_orders")
+    .then(res => res.json())
+    .then(orders => {
+      if (!orders.length) {
+        table.style.display = "none";
+        noOrders.style.display = "block";
+        return;
+      }
+
+      noOrders.style.display = "none";
+      orders.forEach((order, index) => {
+        const tr = document.createElement("tr");
+        <tr>
+  <td>${index + 1}</td>
+  <td>${order.customer_name}</td>
+  <td>${order.table_number}</td>
+  <td>${order.item_name}</td>
+  <td>₹${order.price}</td>
+  <td>₹${order.total_amount}</td> <!-- New -->
+</tr>
+
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching orders:", error);
+      table.style.display = "none";
+      noOrders.textContent = "Failed to load orders.";
+      noOrders.style.display = "block";
+    });
+</script>
+
+</body>
+</html>
+
