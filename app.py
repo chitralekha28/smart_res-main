@@ -124,13 +124,18 @@
 import os
 import mysql.connector
 import logging
+from flask_cors import CORS
+
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
+
 app.secret_key = os.urandom(24)  # Secure secret key for session management
 
 # Database connection function
@@ -149,6 +154,10 @@ def get_db_connection():
 # ---------- ROUTES ---------- #
 
 @app.route('/')
+@app.route('/qr')
+def qr():
+    return render_template('qr.html')
+
 @app.route('/home')
 def index():
     return render_template('index.html')
@@ -163,7 +172,8 @@ def login():
 
 @app.route('/register')
 def register():
-    return render_template('register.html')
+    return render_template('login.html')  # ✅ Combined page
+
 
 @app.route('/menu')
 def menu():
@@ -268,20 +278,24 @@ def login_validation():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
-        if user:
+        if user and check_password_hash(user['password'], password):
             session['loggedin'] = True
             session['username'] = user['name']
+            session['user_id'] = user['id']
+            session['role'] = user.get('role', 'customer')  # optional, if using roles
             flash("Login successful!", "success")
             return redirect(url_for('menu'))
         else:
             flash("Invalid email or password.", "danger")
             return redirect(url_for('login'))
+
     finally:
         cursor.close()
         conn.close()
+
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
@@ -297,13 +311,19 @@ def add_user():
     cursor = conn.cursor()
 
     try:
-        cursor.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s)", (name, email, password))
+        hashed_password = generate_password_hash(password)
+        cursor.execute(
+            "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
+            (name, email, hashed_password)
+        )
         conn.commit()
         flash("Registered successfully! Please log in.", "success")
         return redirect(url_for('login'))
+
     except mysql.connector.IntegrityError:
         flash("Email already exists. Try logging in.", "danger")
         return redirect(url_for('register'))
+
     finally:
         cursor.close()
         conn.close()
@@ -384,4 +404,4 @@ def place_order():
 # ---------- MAIN ---------- #
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

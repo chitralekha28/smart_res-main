@@ -216,12 +216,31 @@
     .cart-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 12px 0;
       border-bottom: 1px solid #eee;
     }
 
+    .item-details {
+      flex: 1;
+    }
+
     .item-name {
       font-weight: 600;
+    }
+
+    .remove-button {
+      background: #e53935;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .remove-button:hover {
+      background: #c62828;
     }
 
     .total-section {
@@ -268,22 +287,30 @@
   </div>
 
   <script>
-    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
     const container = document.getElementById('cart-items-container');
     const totalElem = document.getElementById('cart-total');
 
-    if (cartItems.length === 0) {
-      container.innerHTML = '<p>Your cart is empty.</p>';
+    function renderCart() {
+      container.innerHTML = '';
       totalElem.textContent = '';
-    } else {
+
+      if (cartItems.length === 0) {
+        container.innerHTML = '<p>Your cart is empty.</p>';
+        return;
+      }
+
       let total = 0;
 
-      cartItems.forEach(item => {
+      cartItems.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'cart-item';
         div.innerHTML = `
-          <span class="item-name">${item.name}</span>
-          <span class="item-price">₹${item.price} × ${item.quantity || 1}</span>
+          <div class="item-details">
+            <span class="item-name">${item.name}</span><br>
+            <span class="item-price">₹${item.price} × ${item.quantity || 1}</span>
+          </div>
+          <button class="remove-button" onclick="removeItem(${index})">Remove</button>
         `;
         container.appendChild(div);
 
@@ -294,6 +321,14 @@
 
       totalElem.textContent = `Total: ₹${total.toFixed(2)}`;
     }
+
+    function removeItem(index) {
+      cartItems.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+      renderCart();
+    }
+
+    renderCart();
 
     document.getElementById("placeOrderBtn").addEventListener("click", async function () {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -306,7 +341,6 @@
       const name = prompt("Enter your name (or leave blank):") || "Guest";
       const table = prompt("Enter table number:") || "Unknown";
 
-      // ✅ Make sure all items include both item_id and quantity
       const items = cart
         .filter(item => item.id !== undefined)
         .map(item => ({
@@ -314,18 +348,15 @@
           quantity: item.quantity || 1
         }));
 
-      console.log("Sending cart:", items);
-
       try {
         const response = await fetch("http://127.0.0.1:5000/place_order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-  name: name,
-  table_number: table,    // ✅ This matches what the backend expects
-  items: items
-})
-
+            name: name,
+            table_number: table,
+            items: items
+          })
         });
 
         const data = await response.json();
